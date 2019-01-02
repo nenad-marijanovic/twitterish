@@ -69,8 +69,20 @@ async function me (req, res, next) {
     .send(Response.success(userData));
 }
 
+async function logout (req, res, next) {
+  try {
+    authSessions.destroy(req);
+    await userSessionService.deleteUserSession(req.sessionID);
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
-  me
+  me,
+  logout
 };
