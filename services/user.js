@@ -4,6 +4,8 @@ const db = require('../models');
 const utils = require('../utils/utils');
 const { createHash } = require('../utils/hashing');
 const sessionProperties = ['id', 'email'];
+const { AuthenticationError } = require('../utils/errors');
+const auth = require('./auth');
 
 async function register (email, password) {
   try {
@@ -27,7 +29,27 @@ async function register (email, password) {
   }
 }
 
+async function login (email, password) {
+  const User = await db.User.findOne({
+    where: {
+      email: email
+    }
+  });
+  if (!User) {
+    throw new AuthenticationError();
+  }
+
+  const ok = await auth.checkPassword(User.hash, password);
+
+  if (!ok) {
+    throw new AuthenticationError();
+  }
+  return getSessionProperties(User.dataValues);
+}
+
 function getSessionProperties (User) {
+  console.log(User);
+  console.log(sessionProperties);
   const obj = utils.getSubset(sessionProperties, User);
   return obj;
 }
@@ -47,6 +69,7 @@ async function userDoesntExists (email) {
 
 module.exports = {
   register,
+  login,
   getSessionProperties,
   userDoesntExists,
   countUsers

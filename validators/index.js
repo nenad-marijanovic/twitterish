@@ -16,7 +16,6 @@ function appendValidationError (validators) {
 
 function validationError (req, res, next) {
   const errors = validationResult(req);
-  console.log(errors.mapped());
   if (!errors.isEmpty()) {
     next(new ValidationError(errors.mapped()));
   } else {

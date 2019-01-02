@@ -4,7 +4,7 @@ const userServices = require('../services/user');
 const Response = require('../utils/response');
 const authSessions = require('./authSessions');
 const userSessionService = require('../services/user_sessions');
-const { ConflictError } = require('../utils/errors');
+const { ConflictError, AuthenticationError } = require('../utils/errors');
 
 async function register (req, res, next) {
   try {
@@ -16,7 +16,6 @@ async function register (req, res, next) {
       next(new ConflictError());
     } else {
       const sessionProp = await userServices.register(email, password);
-      // console.log(sessionProp);
       authSessions.setAuthenticated(req, sessionProp);
 
       await userSessionService.setUserSession(req.session.id, req.session.user.id);
@@ -30,6 +29,31 @@ async function register (req, res, next) {
   }
 }
 
+async function login (req, res, next) {
+  try {
+    const { email, password } = req.body;
+
+    const sessionProp = await userServices.login(email, password);
+
+    if (sessionProp) {
+      authSessions.setAuthenticated(req, sessionProp);
+
+      const userId = req.session.user.id;
+
+      await userSessionService.setUserSession(req.sessionID, userId);
+
+      res.status(200)
+        .send(Response.success(sessionProp))
+        .end();
+    } else {
+      next(new AuthenticationError());
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
-  register
+  register,
+  login
 };

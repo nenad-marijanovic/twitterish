@@ -16,6 +16,7 @@ mobileRouter.use(bodyParser.urlencoded({
 }));
 
 mobileRouter.post(`/user/register`, val.user.register, user.register, h.ok);
+mobileRouter.post(`/user/login`, val.user.login, user.login, h.ok);
 
 mobileRouter.use(h.notFound);
 mobileRouter.use(h.error);

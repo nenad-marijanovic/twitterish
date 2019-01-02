@@ -1,6 +1,6 @@
 'use strict';
 
-const { check, body, param } = require('express-validator/check');
+const { body } = require('express-validator/check');
 const custom = require('./custom');
 const config = require('../config');
 const { valMsg } = require('../utils/validations');
