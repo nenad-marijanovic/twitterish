@@ -48,8 +48,6 @@ async function login (email, password) {
 }
 
 function getSessionProperties (User) {
-  console.log(User);
-  console.log(sessionProperties);
   const obj = utils.getSubset(sessionProperties, User);
   return obj;
 }

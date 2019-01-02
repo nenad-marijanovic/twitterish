@@ -53,7 +53,24 @@ async function login (req, res, next) {
   }
 }
 
+async function me (req, res, next) {
+  const user = req.session.user;
+  if (!user) {
+    next(new AuthenticationError());
+    return;
+  }
+  const userData = await userServices.getSessionProperties(req.session.user);
+  if (!userData) {
+    next(new AuthenticationError());
+    return;
+  }
+
+  res.status(200)
+    .send(Response.success(userData));
+}
+
 module.exports = {
   register,
-  login
+  login,
+  me
 };
