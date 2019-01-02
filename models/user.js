@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       charset: 'latin1'
     },
-    hash_pass: {
+    hash: {
       type: DataTypes.STRING(512),
       allowNull: false
     },
@@ -28,13 +28,13 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     underscored: true,
     freezeTableName: true,
-    tableName: 'user'
+    tableName: 'users'
   });
-  User.associate = function(models) {
+  User.associate = function (models) {
     // associations can be defined here
     models.User.hasMany(models.UserTweet, { foreignKey: { allowNull: true } });
-    models.User.hasMany(models.Relationship, { foreignKey:{ allowNull: false } });
-    models.User.hasMany(models.Relationship, { foreignKey:{ allowNull: false } });
+    models.User.hasMany(models.Relationship, { foreignKey: { allowNull: false } });
+    models.User.hasMany(models.Relationship, { foreignKey: { allowNull: false } });
   };
   return User;
 };

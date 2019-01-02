@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     underscored: true,
     freezeTableName: true,
-    tableName: 'user_tweet'});
+    tableName: 'user_tweets'});
   UserTweet.associate = function(models) {
     // associations can be defined here
   };

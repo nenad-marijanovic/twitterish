@@ -6,29 +6,29 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.BIGINT.UNSIGNED,
+        type: Sequelize.BIGINT.UNSIGNED
       },
       user_id: {
         type: Sequelize.BIGINT.UNSIGNED,
         allowNull: false,
         references: {
-          model: 'user',
+          model: 'users',
           key: 'id'
         }
       },
       text: {
         type: Sequelize.STRING(256),
-        allowNull:false
+        allowNull: false
       },
-      timestamp:{
+      timestamp: {
         type: Sequelize.INTEGER,
-        allowNull:false
+        allowNull: false
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }

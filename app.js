@@ -9,20 +9,18 @@ const bodyParser = require('body-parser');
 
 const { mobileRouter } = require('./routes');
 
-const mobileBaseUrl = '/rest/twitterish/';
+const baseUrl = '/rest/v1/';
 
 const { PORT } = process.env;
 
-// backend server start
 const app = express();
 
-// setup client middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-app.use(mobileBaseUrl, mobileRouter);
+app.use(baseUrl, mobileRouter);
 
 const port = PORT;
 const server = http.createServer(app);
