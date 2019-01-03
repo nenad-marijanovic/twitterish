@@ -14,14 +14,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-
+    timestamp: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: false
+    },
+    created_at: {
+      allowNull: false,
+      type: DataTypes.DATE
+    },
+    updated_at: {
+      allowNull: false,
+      type: DataTypes.DATE
+    }
 
   }, {
     underscored: true,
     freezeTableName: true,
-    tableName: 'user_tweets'});
-  UserTweet.associate = function(models) {
+    tableName: 'user_tweets' });
+  UserTweet.associate = function (models) {
     // associations can be defined here
   };
-  return  UserTweet;
+  return UserTweet;
 };

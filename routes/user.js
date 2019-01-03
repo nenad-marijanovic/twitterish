@@ -4,6 +4,7 @@ const userServices = require('../services/user');
 const Response = require('../utils/response');
 const authSessions = require('./authSessions');
 const userSessionService = require('../services/user_sessions');
+const moment = require('moment');
 const { ConflictError, AuthenticationError } = require('../utils/errors');
 
 async function register (req, res, next) {
@@ -80,9 +81,26 @@ async function logout (req, res, next) {
   }
 }
 
+async function createTweet (req, res, next) {
+  try {
+    const { text } = req.body;
+    const timestamp = moment().unix();
+    if (!timestamp) {
+      throw new Error('Failed to get current timestamp');
+    }
+
+    await userServices.createTweet(req.params.id, text, timestamp);
+    res.status(200)
+      .end();
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
   me,
-  logout
+  logout,
+  createTweet
 };

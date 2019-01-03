@@ -27,7 +27,14 @@ const login = [
     .not().isEmpty().withMessage(valMsg('pass_req'))
 ];
 
+const createTweet = [
+  body('text')
+    .trim()
+    .not().isEmpty().withMessage(valMsg('text_req'))
+];
+
 module.exports = {
   register,
-  login
+  login,
+  createTweet
 };

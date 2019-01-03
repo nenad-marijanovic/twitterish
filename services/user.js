@@ -52,6 +52,25 @@ function getSessionProperties (User) {
   return obj;
 }
 
+async function createTweet (id, text, timestamp) {
+  try {
+    let userTweet;
+
+    await db.sequelize.transaction(async t => {
+      userTweet = await db.UserTweet.create({
+        user_id: id,
+        text: text,
+        timestamp: timestamp
+      }, { transaction: t });
+      if (!userTweet) {
+        throw new Error('Failed to create user tweet');
+      }
+    });
+  } catch (err) {
+    throw err;
+  }
+}
+
 async function countUsers (email) {
   return db.User.count({
     where: {
@@ -69,6 +88,7 @@ module.exports = {
   register,
   login,
   getSessionProperties,
+  createTweet,
   userDoesntExists,
   countUsers
 };
