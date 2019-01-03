@@ -101,8 +101,18 @@ async function follow (req, res, next) {
   try {
     const { target } = req.body;
     const id = req.params.id;
-    console.log(id, target);
     await userServices.follow(id, target);
+    res.status(200)
+      .end();
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function unfollow (req, res, next) {
+  try {
+    const { target } = req.body;
+    await userServices.unfollow(req.params.id, target);
     res.status(200)
       .end();
   } catch (err) {
@@ -116,5 +126,6 @@ module.exports = {
   me,
   logout,
   createTweet,
-  follow
+  follow,
+  unfollow
 };

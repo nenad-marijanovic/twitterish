@@ -92,6 +92,7 @@ async function userDoesntExists (email) {
 }
 
 async function follow (id, target) {
+  if (id === target) throw new ConflictError();
   const User = await db.User.findOne({
     where: {
       id: id
@@ -129,7 +130,42 @@ async function follow (id, target) {
       throw new Error('Failed to create relationship');
     }
   });
-  // console.log(userFollow.dataValues);
+}
+
+async function unfollow (id, target) {
+  if (id === target) throw new ConflictError();
+  const User = await db.User.findOne({
+    where: {
+      id: id
+    }
+  });
+  if (!User) {
+    throw new AuthenticationError();
+  }
+  const targetUser = await db.User.findOne({
+    where: {
+      id: target
+    }
+  });
+  if (!targetUser) {
+    throw new AuthenticationError();
+  }
+  const Rel = await db.Relationship.findOne({
+    where: {
+      target: target,
+      follower: id
+    }
+  });
+  if (!Rel) {
+    throw new AuthenticationError();
+  }
+
+  await db.Relationship.destroy({
+    where: {
+      target: target,
+      follower: id
+    }
+  });
 }
 
 module.exports = {
@@ -140,5 +176,6 @@ module.exports = {
   createTweet,
   userDoesntExists,
   countUsers,
-  follow
+  follow,
+  unfollow
 };
