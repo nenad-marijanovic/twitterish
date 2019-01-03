@@ -89,7 +89,20 @@ async function createTweet (req, res, next) {
       throw new Error('Failed to get current timestamp');
     }
 
-    await userServices.createTweet(req.params.id, text, timestamp);
+    const tweet = await userServices.createTweet(req.params.id, text, timestamp);
+    res.status(200)
+      .send(Response.success(tweet));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function follow (req, res, next) {
+  try {
+    const { target } = req.body;
+    const id = req.params.id;
+    console.log(id, target);
+    await userServices.follow(id, target);
     res.status(200)
       .end();
   } catch (err) {
@@ -102,5 +115,6 @@ module.exports = {
   login,
   me,
   logout,
-  createTweet
+  createTweet,
+  follow
 };

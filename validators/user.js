@@ -33,8 +33,18 @@ const createTweet = [
     .not().isEmpty().withMessage(valMsg('text_req'))
 ];
 
+const follow = [
+  body('target')
+    .trim()
+    .not().isEmpty().withMessage(valMsg('text_req')),
+  body('target')
+    .trim()
+    .custom(custom.isNumber).withMessage(valMsg('target_type_invalid'))
+];
+
 module.exports = {
   register,
   login,
-  createTweet
+  createTweet,
+  follow
 };

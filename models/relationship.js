@@ -14,21 +14,14 @@ module.exports = (sequelize, DataTypes) => {
     follower: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false
-    },
-
-  }, {});
-  Relationship.associate = function(models) {
+    }
+  }, {
+    underscored: true,
+    freezeTableName: true,
+    tableName: 'relationships'
+  });
+  Relationship.associate = function (models) {
     // associations can be defined here
-    Relationship.belongsTo(models.User, {
-      as: 'target_id',
-      foreignKey: 'target'
-  });
-  
-  Relationship.belongsTo(models.User, {
-      as: 'follower_id',
-      foreignKey: 'follower'
-  });
-
   };
   return Relationship;
 };
