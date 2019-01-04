@@ -1,7 +1,5 @@
 'use strict';
 
-const sequelizePaginate = require('sequelize-paginate');
-
 module.exports = (sequelize, DataTypes) => {
   var UserTweet = sequelize.define('UserTweet', {
     id: {

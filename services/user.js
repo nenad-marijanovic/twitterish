@@ -10,6 +10,17 @@ const auth = require('./auth');
 const { MAX_TWEET_NUMBER } = process.env;
 const Op = db.Sequelize.Op;
 
+/**
+ * Creates a new user entity in the database.
+ * Creates a password hash,then enters a new row in users table via SQL Transaction with given parameters and
+ returns session properties of user. @see sessionProperties()
+ *
+ * @param {string} email
+ * @param {string} password
+ * @param {string} username
+ * @param {string} first_name
+ * @param {string} last_name
+ */
 async function register (email, password, username, first_name, last_name) {
   try {
     let user;
@@ -35,6 +46,14 @@ async function register (email, password, username, first_name, last_name) {
   }
 }
 
+/**
+ *Checks if user with given e-mail exists, then checks if password matches the one in the database.
+ if all is correct, returns session properties of given user. @see getSessionProperties()
+ *
+ *
+ * @param {string} email
+ * @param {string} password
+ */
 async function login (email, password) {
   const User = await db.User.findOne({
     where: {
@@ -53,11 +72,26 @@ async function login (email, password) {
   return getSessionProperties(User.dataValues);
 }
 
+/**
+ * For a given User(models/user.js) returns a data subset(e-mail and id, declared in @const sessionProperties)
+ *
+ * @param {User} User
+ */
 function getSessionProperties (User) {
   const obj = utils.getSubset(sessionProperties, User);
   return obj;
 }
 
+/**
+ *Creates a user_post through an SQL transaction and returns the entire user_post entity.
+ *
+ * @param {bigint.unsigned} id
+ * The ID of user who's creating a post.
+ * @param {string} text
+ * Content of the post.
+ * @param {bigint.unsigned} timestamp
+ * Records the time of the post's creation.
+ */
 async function createTweet (id, text, timestamp) {
   try {
     let userTweet;
@@ -78,11 +112,22 @@ async function createTweet (id, text, timestamp) {
   }
 }
 
+/**
+ *Returns id of a tweet entity, and the id of an user who created it.
+ *Similar to @see sessionProperties(), returns a subset of a tweet defined in @const tweetProperties.
+ *
+ * @param {UserTweet} tweet
+ */
 function getTweetProperties (tweet) {
   const obj = utils.getTweetSubset(tweetProperties, tweet);
   return obj;
 }
 
+/**
+ *Checks number of users in database with given email. Used for validating if user already exists or not. @see userDoesntExists()
+ *
+ * @param {string} email
+ */
 async function countUsers (email) {
   return db.User.count({
     where: {
@@ -91,6 +136,13 @@ async function countUsers (email) {
   });
 }
 
+/**
+ *Checks if there are any users that already have a given username.
+ *Used for validating if a username is unique or not.
+ *
+ * @param {string} username
+ * Username of user trying to register.
+ */
 async function countUsersByUsername (username) {
   return db.User.count({
     where: {
@@ -99,6 +151,12 @@ async function countUsersByUsername (username) {
   });
 }
 
+/**
+ *Checks if user currently exists by checking if there are any users with given e-mail*@see countUsers() ) 
+ or username(@see countUsersByUsername) )
+ * @param {string} email
+ * @param {string} username
+ */
 async function userDoesntExists (email, username) {
   const userEmailCount = await countUsers(email);
   const usernameCount = await countUsersByUsername(username);
@@ -107,6 +165,15 @@ async function userDoesntExists (email, username) {
   return false;
 }
 
+/**
+ *Checks if sent id's are the same, if not checks if users are existing.
+ If this relationship doesn't already exist, creates a Relationship entity(from models/relationship.js) with given id's.
+ *
+ * @param {bigint.unsigned} id
+ * Contains the id of user that wants to follow a different user
+ * @param {bigint.unsigned} target
+ * Contains the id of user that is being followed.
+ */
 async function follow (id, target) {
   if (id === target) throw new ConflictError();
   const User = await db.User.findOne({
@@ -148,6 +215,13 @@ async function follow (id, target) {
   });
 }
 
+/**
+ *Checks if users with given id's exist, and if the relationship between them exists. If so, deletes the relationship
+ and the users can't see eachother's posts anymore.
+ *
+ * @param {bigint.unsigned} id
+ * @param {bigint.unsigned} target
+ */
 async function unfollow (id, target) {
   if (id === target) throw new ConflictError();
   const User = await db.User.findOne({
@@ -184,6 +258,15 @@ async function unfollow (id, target) {
   });
 }
 
+/**
+ *If given user exists, Returns latest @const MAX_TWEET_NUMBER posts(entered in .env) with given @param offset
+ This function shows only posts of one user.
+ * @param {bigint.unsigned} id
+ * Id of user who's tweets are shown
+ * @param {int} offset
+ * Number of rows that are skipped when getting the list(if user has requested to see older posts)
+ * should be bigger than 0.
+ */
 async function listUserTweets (id, offset) {
   const User = db.User.findOne({
     where: {
@@ -211,6 +294,13 @@ async function listUserTweets (id, offset) {
   return tweets;
 }
 
+/**
+ *If there's a user with given id, gets @const MAX_TWEET_NUMBER(from .env) of tweets from targets that the user
+ is following, with given @param offset .
+ * @param {bigint.unsigned} id
+ * Id of user who wants to see their follower's posts.
+ * @param {bigint.unsigned} offset
+ */
 async function listTargetTweets (id, offset) {
   const User = db.User.findOne({
     where: {
@@ -240,7 +330,10 @@ async function listTargetTweets (id, offset) {
   });
   return tweets;
 }
-
+/**
+ *Gets all id's from targets this user follows, and returns the array to @see listTargetTweets()
+ * @param {bigint.unsigned} id
+ */
 async function getUserTargets (id) {
   let targetList = await db.Relationship.findAll({
     where: {

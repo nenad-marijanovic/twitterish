@@ -1,0 +1,18 @@
+PORT=some_port
+NODE_ENV=development
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_DATABASE=twitterish
+
+TEST_INSTALLATION= true
+
+MAX_TWEET_NUMBER=max_number
+
+
+SESSION_KEY=session_cookie_name
+SESSION_SECRET=session_cookie_secret
+SESSION_COOKIE_MAX_AGE=63072000000
+SESSION_COOKIE_SECURE=false
