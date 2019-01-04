@@ -9,9 +9,23 @@ module.exports = {
         type: Sequelize.BIGINT.UNSIGNED
       },
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       hash: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      username: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      first_name: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
+      last_name: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       created_at: {

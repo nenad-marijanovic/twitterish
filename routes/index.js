@@ -15,14 +15,23 @@ mobileRouter.use(bodyParser.json());
 mobileRouter.use(bodyParser.urlencoded({
   extended: true
 }));
+
+// user-related requests
 mobileRouter.post(`/user/register`, val.user.register, user.register, h.ok);
 mobileRouter.post(`/user/login`, val.user.login, user.login, h.ok);
 mobileRouter.get(`/user/me`, user.me, h.ok);
 mobileRouter.post(`/user/logout/:id`, auth.user, user.logout, h.ok);
-mobileRouter.post(`/user/create/tweet/:id`, auth.user, val.user.createTweet, user.createTweet, h.ok);
+
+// follow-related requests
 mobileRouter.post(`/user/follow/:id`, auth.user, val.user.follow, user.follow, h.ok);
 mobileRouter.delete(`/user/follow/:id`, auth.user, val.user.follow, user.unfollow, h.ok);
 
+// post-related requests
+mobileRouter.post(`/user/create/tweet/:id`, auth.user, val.user.createTweet, user.createTweet, h.ok);
+mobileRouter.get(`/user/list/:id/tweets/me`, auth.user, user.listUserTweets, h.ok);
+mobileRouter.get(`/user/list/:id/tweets`, auth.user, user.listTargetTweets, h.ok);
+
+// error handling requests
 mobileRouter.use(h.notFound);
 mobileRouter.use(h.error);
 

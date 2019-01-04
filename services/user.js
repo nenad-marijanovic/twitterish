@@ -7,8 +7,10 @@ const sessionProperties = ['id', 'email'];
 const tweetProperties = ['id', 'user_id'];
 const { AuthenticationError, ConflictError } = require('../utils/errors');
 const auth = require('./auth');
+const { MAX_TWEET_NUMBER } = process.env;
+const Op = db.Sequelize.Op;
 
-async function register (email, password) {
+async function register (email, password, username, first_name, last_name) {
   try {
     let user;
 
@@ -17,7 +19,10 @@ async function register (email, password) {
 
       user = await db.User.create({
         email: email,
-        hash: passwordHash
+        hash: passwordHash,
+        username: username,
+        first_name: first_name,
+        last_name: last_name
       }, { transaction: t });
 
       if (!user) {
@@ -67,14 +72,14 @@ async function createTweet (id, text, timestamp) {
         throw new Error('Failed to create user tweet');
       }
     });
-    return getTweetProperties(userTweet);
+    return (userTweet.dataValues);
   } catch (err) {
     throw err;
   }
 }
 
 function getTweetProperties (tweet) {
-  const obj = utils.getSubset(tweetProperties, tweet);
+  const obj = utils.getTweetSubset(tweetProperties, tweet);
   return obj;
 }
 
@@ -86,9 +91,20 @@ async function countUsers (email) {
   });
 }
 
-async function userDoesntExists (email) {
-  const userCount = await countUsers(email);
-  return userCount === 0;
+async function countUsersByUsername (username) {
+  return db.User.count({
+    where: {
+      username: username
+    }
+  });
+}
+
+async function userDoesntExists (email, username) {
+  const userEmailCount = await countUsers(email);
+  const usernameCount = await countUsersByUsername(username);
+  if (usernameCount === 0 && userEmailCount === 0) return true;
+
+  return false;
 }
 
 async function follow (id, target) {
@@ -168,6 +184,83 @@ async function unfollow (id, target) {
   });
 }
 
+async function listUserTweets (id, offset) {
+  const User = db.User.findOne({
+    where: {
+      id: id
+    }
+  });
+  if (!User) {
+    throw new AuthenticationError();
+  }
+
+  let tweets;
+
+  tweets = await db.UserTweet.findAll({
+    where: {
+      user_id: id
+    },
+    attributes: ['id', 'text'],
+    offset: +offset,
+    limit: +MAX_TWEET_NUMBER,
+    include: {
+      model: db.User,
+      attributes: ['username', 'id']
+    }
+  });
+  return tweets;
+}
+
+async function listTargetTweets (id, offset) {
+  const User = db.User.findOne({
+    where: {
+      id: id
+    }
+  });
+  if (!User) {
+    throw new AuthenticationError();
+  }
+
+  let targets = await getUserTargets(id);
+
+  let tweets = await db.UserTweet.findAll({
+    where: {
+      user_id: {
+        [Op.in]: targets
+      }
+    },
+    attributes: ['id', 'user_id', 'text'],
+    order: ['created_at'],
+    limit: +MAX_TWEET_NUMBER,
+    offset: +offset,
+    include: {
+      model: db.User,
+      attributes: ['id', 'username']
+    }
+  });
+  return tweets;
+}
+
+async function getUserTargets (id) {
+  let targetList = await db.Relationship.findAll({
+    where: {
+      follower: id
+    },
+    attributes: ['target']
+  });
+  if (!targetList) {
+    return new AuthenticationError();
+  }
+
+  let targets = [];
+  targetList.forEach(element => {
+    targets.push(element.dataValues.target);
+  });
+  console.log(targets);
+
+  return targets;
+}
+
 module.exports = {
   register,
   login,
@@ -177,5 +270,8 @@ module.exports = {
   userDoesntExists,
   countUsers,
   follow,
-  unfollow
+  unfollow,
+  listUserTweets,
+  listTargetTweets,
+  getUserTargets
 };

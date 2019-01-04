@@ -16,7 +16,14 @@ const register = [
     .isLength({ min: config.constants.mobilePinLength }).withMessage(valMsg('pass_min')),
   body('password_repeat')
     .not().isEmpty().withMessage(valMsg('pass_req'))
-    .custom(custom.isEqual('password')).withMessage(valMsg('password_not_equal'))
+    .custom(custom.isEqual('password')).withMessage(valMsg('password_not_equal')),
+  body('username')
+    .not().isEmpty().withMessage(valMsg('username_req'))
+    .isLength({ min: 8 }).withMessage(valMsg('username_short')),
+  body('first_name')
+    .not().isEmpty().withMessage(valMsg('first_name_req')),
+  body('last_name')
+    .not().isEmpty().withMessage(valMsg('last_name_req'))
 ];
 
 const login = [

@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
   });
   Relationship.associate = function (models) {
     // associations can be defined here
+    models.UserTweet.belongsTo(models.User, {
+      foreignKey: {
+        allowNull: false
+      }
+    });
   };
   return Relationship;
 };

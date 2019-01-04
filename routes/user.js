@@ -9,14 +9,14 @@ const { ConflictError, AuthenticationError } = require('../utils/errors');
 
 async function register (req, res, next) {
   try {
-    const { email, password } = req.body;
+    const { email, password, username, first_name, last_name } = req.body;
 
-    const ok = await userServices.userDoesntExists(email);
+    const ok = await userServices.userDoesntExists(email, username);
 
     if (!ok) {
       next(new ConflictError());
     } else {
-      const sessionProp = await userServices.register(email, password);
+      const sessionProp = await userServices.register(email, password, username, first_name, last_name);
       authSessions.setAuthenticated(req, sessionProp);
 
       await userSessionService.setUserSession(req.session.id, req.session.user.id);
@@ -120,6 +120,32 @@ async function unfollow (req, res, next) {
   }
 }
 
+async function listUserTweets (req, res, next) {
+  let tweets;
+  let offset = req.query.offset || 0;
+  try {
+    tweets = await userServices.listUserTweets(req.params.id, offset);
+
+    res.status(200)
+      .send(Response.success(tweets));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function listTargetTweets (req, res, next) {
+  let tweets;
+  let offset = req.query.offset || 0;
+  try {
+    tweets = await userServices.listTargetTweets(req.params.id, offset);
+
+    res.status(200)
+      .send(Response.success(tweets));
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -127,5 +153,7 @@ module.exports = {
   logout,
   createTweet,
   follow,
-  unfollow
+  unfollow,
+  listUserTweets,
+  listTargetTweets
 };

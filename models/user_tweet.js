@@ -1,4 +1,7 @@
 'use strict';
+
+const sequelizePaginate = require('sequelize-paginate');
+
 module.exports = (sequelize, DataTypes) => {
   var UserTweet = sequelize.define('UserTweet', {
     id: {
@@ -33,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'user_tweets' });
   UserTweet.associate = function (models) {
     // associations can be defined here
+    models.UserTweet.belongsTo(models.User, {
+      foreignKey: {
+        allowNull: false
+      }
+    });
   };
   return UserTweet;
 };
