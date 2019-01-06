@@ -21,7 +21,7 @@ const Op = db.Sequelize.Op;
  * @param {string} first_name
  * @param {string} last_name
  */
-async function register (email, password, username, first_name, last_name) {
+async function register (email, password, username, firstName, lastName) {
   try {
     let user;
 
@@ -32,8 +32,8 @@ async function register (email, password, username, first_name, last_name) {
         email: email,
         hash: passwordHash,
         username: username,
-        first_name: first_name,
-        last_name: last_name
+        first_name: firstName,
+        last_name: lastName
       }, { transaction: t });
 
       if (!user) {
@@ -152,7 +152,7 @@ async function countUsersByUsername (username) {
 }
 
 /**
- *Checks if user currently exists by checking if there are any users with given e-mail*@see countUsers() ) 
+ *Checks if user currently exists by checking if there are any users with given e-mail*@see countUsers() )
  or username(@see countUsersByUsername) )
  * @param {string} email
  * @param {string} username
@@ -267,7 +267,8 @@ async function unfollow (id, target) {
  * Number of rows that are skipped when getting the list(if user has requested to see older posts)
  * should be bigger than 0.
  */
-async function listUserTweets (id, offset) {
+async function listUserTweets (id, page, tweetNumber) {
+  let offset = page * tweetNumber;
   const User = db.User.findOne({
     where: {
       id: id
@@ -285,7 +286,7 @@ async function listUserTweets (id, offset) {
     },
     attributes: ['id', 'text'],
     offset: +offset,
-    limit: +MAX_TWEET_NUMBER,
+    limit: +tweetNumber,
     include: {
       model: db.User,
       attributes: ['username', 'id']
@@ -301,7 +302,8 @@ async function listUserTweets (id, offset) {
  * Id of user who wants to see their follower's posts.
  * @param {bigint.unsigned} offset
  */
-async function listTargetTweets (id, offset) {
+async function listTargetTweets (id, page, tweetNumber) {
+  let offset = page * tweetNumber;
   const User = db.User.findOne({
     where: {
       id: id
@@ -321,7 +323,7 @@ async function listTargetTweets (id, offset) {
     },
     attributes: ['id', 'user_id', 'text'],
     order: ['created_at'],
-    limit: +MAX_TWEET_NUMBER,
+    limit: +tweetNumber,
     offset: +offset,
     include: {
       model: db.User,

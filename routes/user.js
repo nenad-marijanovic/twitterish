@@ -122,9 +122,10 @@ async function unfollow (req, res, next) {
 
 async function listUserTweets (req, res, next) {
   let tweets;
-  let offset = req.query.offset || 0;
+  let page = req.body.page || 0;
+  let tweetNumber = req.body.tweetNumber || 1;
   try {
-    tweets = await userServices.listUserTweets(req.params.id, offset);
+    tweets = await userServices.listUserTweets(req.params.id, page, tweetNumber);
 
     res.status(200)
       .send(Response.success(tweets));
@@ -135,9 +136,10 @@ async function listUserTweets (req, res, next) {
 
 async function listTargetTweets (req, res, next) {
   let tweets;
-  let offset = req.query.offset || 0;
+  let tweetNumber = req.body.tweetNumber || 1;
+  let page = req.body.page || 0;
   try {
-    tweets = await userServices.listTargetTweets(req.params.id, offset);
+    tweets = await userServices.listTargetTweets(req.params.id, page, tweetNumber);
 
     res.status(200)
       .send(Response.success(tweets));
